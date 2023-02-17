@@ -34,11 +34,11 @@ const server = http.createServer();
 const httpRequestListener = (request, response) => {
   if (request.method === "GET") {
     if (request.url === "/data") {
-      let mergeData = [];
+      let mergeDatas = [];
 
       for (let i = 0; i < posts.length; i++) {
         if (posts[i].id === users[i].id) {
-          mergeData.push({
+          mergeDatas.push({
             userId: parseInt(posts[i].userId),
             userName: users[i].name,
             postingId: parseInt(posts[i].id),
@@ -49,7 +49,7 @@ const httpRequestListener = (request, response) => {
       }
 
       response.writeHead(200, { "Content-Type": "application/json" }); // (4)
-      response.end(JSON.stringify({ data: mergeData }));
+      response.end(JSON.stringify({ data: mergeDatas }));
     }
   } else if (request.method === "POST") {
     if (request.url === "/users") {
@@ -89,6 +89,33 @@ const httpRequestListener = (request, response) => {
 
         response.writeHead(201, { "Content-Type": "application/json" }); // (4)
         response.end(JSON.stringify({ posts: posts })); // (5)
+      });
+    }
+  } else if (request.method === "PATCH") {
+    if (request.url === "/modifyData") {
+      let body = "";
+      let modifyDatas = [];
+      // data가 stream 형태로 들어온다.
+      request.on("data", (data) => {
+        body += data;
+      });
+      request.on("end", () => {
+        const dataModify = JSON.parse(body);
+
+        for (let i = 0; i < posts.length; i++) {
+          if (posts[i].id === parseInt(dataModify.postingId)) {
+            modifyDatas.push({
+              userId: parseInt(posts[i].userId),
+              userName: users[i].name,
+              postingId: parseInt(posts[i].id),
+              postingTitle: posts[i].title,
+              postingContent: dataModify.postingContent,
+            });
+          }
+        }
+
+        response.writeHead(201, { "Content-Type": "application/json" }); // (4)
+        response.end(JSON.stringify({ data: modifyDatas })); // (5)
       });
     }
   }

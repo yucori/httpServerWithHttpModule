@@ -32,7 +32,26 @@ const http = require("http");
 const server = http.createServer();
 
 const httpRequestListener = (request, response) => {
-  if (request.method === "POST") {
+  if (request.method === "GET") {
+    if (request.url === "/data") {
+      let mergeData = [];
+
+      for (let i = 0; i < posts.length; i++) {
+        if (posts[i].id === users[i].id) {
+          mergeData.push({
+            userId: parseInt(posts[i].userId),
+            userName: users[i].name,
+            postingId: parseInt(posts[i].id),
+            postingTitle: posts[i].title,
+            postingContent: posts[i].content,
+          });
+        }
+      }
+
+      response.writeHead(200, { "Content-Type": "application/json" }); // (4)
+      response.end(JSON.stringify({ data: mergeData }));
+    }
+  } else if (request.method === "POST") {
     if (request.url === "/users") {
       let body = "";
       // data가 stream 형태로 들어온다.

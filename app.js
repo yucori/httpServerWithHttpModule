@@ -50,6 +50,34 @@ const httpRequestListener = (request, response) => {
 
       response.writeHead(200, { "Content-Type": "application/json" }); // (4)
       response.end(JSON.stringify({ data: mergeDatas }));
+    } else if (request.url === "/user_posting") {
+      let userPostingDatas = [];
+      let num = 0;
+
+      for (let i = 0; i < users.length; i++) {
+        users[i].postings = [];
+        for (let j = 0; j < posts.length; j++) {
+          if (users[i].id === posts[j].userId) {
+            users[i].postings.push({
+              postingId: posts[j].id,
+              postingName: posts[j].title,
+              postingContent: posts[j].content,
+            });
+            num++;
+          }
+        }
+        if (num != 0) {
+          userPostingDatas.push({
+            userId: users[i].id,
+            userName: users[i].name,
+            posting: users[i].postings,
+          });
+        }
+        num = 0;
+      }
+
+      response.writeHead(200, { "Content-Type": "application/json" }); // (4)
+      response.end(JSON.stringify({ data: userPostingDatas }));
     }
   } else if (request.method === "POST") {
     if (request.url === "/users") {

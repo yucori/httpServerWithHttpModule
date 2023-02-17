@@ -118,6 +118,26 @@ const httpRequestListener = (request, response) => {
         response.end(JSON.stringify({ data: modifyDatas })); // (5)
       });
     }
+  } else if (request.method === "DELETE") {
+    if (request.url === "/delete") {
+      let body = "";
+      // data가 stream 형태로 들어온다.
+      request.on("data", (data) => {
+        body += data;
+      });
+      request.on("end", () => {
+        const dataDelete = JSON.parse(body);
+
+        for (let i = 0; i < posts.length; i++) {
+          if (posts[i].id === parseInt(dataDelete.postingId)) {
+            posts.splice(i, 1);
+          }
+        }
+
+        response.writeHead(200, { "Content-Type": "application/json" }); // (4)
+        response.end(JSON.stringify({ message: "postingDeleted" })); // (5)
+      });
+    }
   }
 };
 
